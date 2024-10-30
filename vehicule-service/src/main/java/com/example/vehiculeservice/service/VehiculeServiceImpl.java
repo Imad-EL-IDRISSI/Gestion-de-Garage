@@ -1,6 +1,8 @@
 package com.example.vehiculeservice.service;
 
+import com.example.vehiculeservice.Config.MessageProducer;
 import com.example.vehiculeservice.Repository.VehiculeRepository;
+import com.example.vehiculeservice.clients.ClientRestClient;
 import com.example.vehiculeservice.dto.VehiculeDto;
 import com.example.vehiculeservice.entities.Vehicule;
 import com.example.vehiculeservice.exception.VehiculeNotFound;
@@ -15,9 +17,14 @@ import java.util.Optional;
 public class VehiculeServiceImpl implements VehiculeService{
 
     private VehiculeRepository vehiculeRepository;
+    private ClientRestClient clientRestClient;
+    private final MessageProducer messageProducer; // Injection de MessageProducer
 
-    public VehiculeServiceImpl(VehiculeRepository vehiculeRepository) {
+
+    public VehiculeServiceImpl(VehiculeRepository vehiculeRepository, ClientRestClient clientRestClient, MessageProducer messageProducer) {
         this.vehiculeRepository = vehiculeRepository;
+        this.clientRestClient = clientRestClient;
+        this.messageProducer = messageProducer;
     }
 
     @Override
@@ -34,7 +41,10 @@ public class VehiculeServiceImpl implements VehiculeService{
         vehicule.setTypeCarb(vehiculeDto.getTypeCarb());
         vehicule.setDateAchat(vehiculeDto.getDateAchat());
         vehicule.setProprietaire(vehiculeDto.getProprietaire());
+        vehicule.setClient_Id(vehiculeDto.getClient_Id());
         vehicule.setEtat(vehiculeDto.getEtat());
+        vehicule.setCouleur(vehiculeDto.getCouleur());
+        System.out.println("----------------------------------------");
 
 
         return vehiculeRepository.save(vehicule);
@@ -88,6 +98,46 @@ public class VehiculeServiceImpl implements VehiculeService{
 
     @Override
     public List<Vehicule> allVehicules() {
-        return vehiculeRepository.findAll();
+        List<Vehicule> vehiculeList = vehiculeRepository.findAll();
+        vehiculeList.forEach(vehicule -> {
+            vehicule.setProprietaire(clientRestClient.findClientById(vehicule.getClient_Id()));
+            System.out.println("::::::::::::::::::::"+vehicule.getProprietaire());
+        });
+        return vehiculeList;
     }
+    @Override
+    public Vehicule getVehiculeById(Long id) throws  VehiculeNotFound{
+        Optional<Vehicule> optionalVehicule = vehiculeRepository.findById(id);
+
+        if (optionalVehicule.isPresent()) {
+            Vehicule vehicule = optionalVehicule.get();
+            // Récupérer les informations du propriétaire du véhicule
+            vehicule.setProprietaire(clientRestClient.findClientById(vehicule.getClient_Id()));
+
+            // Créer un VehiculeDto pour envoyer les informations du véhicule
+            VehiculeDto vehiculeDto = new VehiculeDto();
+            vehiculeDto.setId(vehicule.getId());
+            vehiculeDto.setVin(vehicule.getVin());
+            vehiculeDto.setImmatriculation(vehicule.getImmatriculation());
+            vehiculeDto.setMarque(vehicule.getMarque());
+            vehiculeDto.setModele(vehicule.getModele());
+            vehiculeDto.setAnnee(vehicule.getAnnee());
+            vehiculeDto.setKm(vehicule.getKm());
+            vehiculeDto.setCouleur(vehicule.getCouleur());
+            vehiculeDto.setTypeCarb(vehicule.getTypeCarb());
+            vehiculeDto.setDateAchat(vehicule.getDateAchat());
+            vehiculeDto.setProprietaire(vehicule.getProprietaire());
+            vehiculeDto.setClient_Id(vehicule.getClient_Id());
+            vehiculeDto.setEtat(vehicule.getEtat());
+
+            if(vehiculeDto.getId() == id) {
+                // Envoi du message au topic Kafka pour le véhicule consulté
+                messageProducer.sendMessage("vehicule-topic", vehiculeDto);
+            }
+            return vehicule;
+        } else {
+            throw new VehiculeNotFound("Véhicule non trouvé avec ID " + id);
+        }
+    }
+
 }

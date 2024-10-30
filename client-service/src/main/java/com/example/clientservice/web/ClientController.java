@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/Client")
+@RequestMapping("/clients")
 public class ClientController {
 
     private ClientService clientService;
@@ -36,6 +36,11 @@ public class ClientController {
     public ResponseEntity<List<Client>> allClient(){
         List<Client> clientList = clientService.allClients();
         return ResponseEntity.ok(clientList);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Client> findClientById(@PathVariable Long id){
+        Client client = clientService.findClientById(id);
+        return ResponseEntity.ok(client);
     }
 
 

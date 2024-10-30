@@ -1,0 +1,28 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id : r1
+          uri: http://localhost:8081/
+          predicates:
+            - Path=/clients/**
+        - id : r2
+          uri: http://localhost:8082/
+          predicates:
+            - Path=/vehicules/**
+        - id: r3
+          uri: http://localhost:8083/
+          predicates:
+            - Path=/maintenanceTasks/**
+        - id: r4
+          uri: http://localhost:8084/
+          predicates:
+            - Path=/notifications/**
+        - id: r5
+          uri: http://localhost:8085/
+          predicates:
+            - Path=/factures/**
+  application:
+    name: gateway-service
+server:
+  port: 8888

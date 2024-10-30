@@ -1,8 +1,7 @@
 package com.example.notificationservice.dto;
 
 import com.example.notificationservice.model.Client;
-import com.example.notificationservice.model.Vehicule;
-import jakarta.persistence.Transient;
+import com.example.notificationservice.model.VehiculeDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +12,6 @@ public class NotificationDto {
     private String message;
     private Client client;
     private Long clientId;
-    private Vehicule vehicule;
+    private VehiculeDto vehicule;
     private Long vehiculeId;
 }

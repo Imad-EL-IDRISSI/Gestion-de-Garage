@@ -1,5 +1,6 @@
 package com.example.vehiculeservice.web;
 
+import com.example.vehiculeservice.clients.ClientRestClient;
 import com.example.vehiculeservice.dto.VehiculeDto;
 import com.example.vehiculeservice.entities.Vehicule;
 import com.example.vehiculeservice.exception.VehiculeNotFound;
@@ -10,18 +11,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/vehicule")
+@RequestMapping("/vehicules")
 public class VehiculeController {
 
     private VehiculeService vehiculeService;
 
-    public VehiculeController(VehiculeService vehiculeService) {
+    public VehiculeController(VehiculeService vehiculeService, ClientRestClient clientRestClient) {
         this.vehiculeService = vehiculeService;
     }
 
     @PostMapping("/ajouter")
     public ResponseEntity<Vehicule> saveVehicule(@RequestBody VehiculeDto vehiculeDto){
         Vehicule vehicule = vehiculeService.saveVehicule(vehiculeDto);
+        System.out.println("-----------------------"+ vehicule);
         return ResponseEntity.ok(vehicule);
     }
 
@@ -35,5 +37,10 @@ public class VehiculeController {
     public ResponseEntity<List<Vehicule>> allVehicule(){
         List<Vehicule> vehiculeList = vehiculeService.allVehicules();
         return ResponseEntity.ok(vehiculeList);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Vehicule> findClientById(@PathVariable Long id) throws VehiculeNotFound {
+        Vehicule vehicule = vehiculeService.getVehiculeById(id);
+        return ResponseEntity.ok(vehicule);
     }
 }

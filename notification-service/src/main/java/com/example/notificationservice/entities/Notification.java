@@ -1,7 +1,7 @@
 package com.example.notificationservice.entities;
 
 import com.example.notificationservice.model.Client;
-import com.example.notificationservice.model.Vehicule;
+import com.example.notificationservice.model.VehiculeDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +22,7 @@ public class Notification {
     private Client client;
     private Long clientId;
     @Transient
-    private Vehicule vehicule;
+    private VehiculeDto vehicule;
     private Long vehiculeId;
     private LocalDateTime dateEnvoi;
     private LocalDateTime dateCreation;

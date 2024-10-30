@@ -14,4 +14,6 @@ public interface VehiculeService {
     Vehicule updateVehicule(VehiculeDto vehiculeDto, Long id) throws VehiculeNotFound;
 
     List<Vehicule> allVehicules();
+
+    Vehicule getVehiculeById(Long id) throws  VehiculeNotFound;
 }
