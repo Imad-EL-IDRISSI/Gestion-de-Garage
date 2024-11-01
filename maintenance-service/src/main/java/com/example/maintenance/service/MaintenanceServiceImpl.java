@@ -1,5 +1,6 @@
 package com.example.maintenance.service;
 
+import com.example.maintenance.Client.VehiculeRestVehicule;
 import com.example.maintenance.dto.MaintenanceDto;
 import com.example.maintenance.entities.Maintenance;
 import com.example.maintenance.exception.MaintenanceNotFound;
@@ -15,9 +16,11 @@ import java.util.Optional;
 @Transactional
 public class MaintenanceServiceImpl implements MaintenanceService{
     private MaintenanceRepository maintenanceRepository;
+    private VehiculeRestVehicule vehiculeRestVehicule;
 
-    public MaintenanceServiceImpl(MaintenanceRepository maintenanceRepository) {
+    public MaintenanceServiceImpl(MaintenanceRepository maintenanceRepository, VehiculeRestVehicule vehiculeRestVehicule) {
         this.maintenanceRepository = maintenanceRepository;
+        this.vehiculeRestVehicule = vehiculeRestVehicule;
     }
 
     @Override
@@ -26,7 +29,7 @@ public class MaintenanceServiceImpl implements MaintenanceService{
             maintenance.setDebut(maintenanceDto.getDebut());
             maintenance.setFin(maintenanceDto.getFin());
             maintenance.setDesciption(maintenanceDto.getDesciption());
-            maintenance.setVehicule(maintenance.getVehicule());
+            maintenance.setVehiculeId(maintenanceDto.getVehiculeId());
             maintenance.setStatut(maintenanceDto.getStatut());
 
         return maintenanceRepository.save(maintenance);
@@ -49,8 +52,8 @@ public class MaintenanceServiceImpl implements MaintenanceService{
             if(maintenanceDto.getStatut() !=null){
                 maintenance.setStatut(maintenanceDto.getStatut());
             }
-            if(maintenanceDto.getVehicule().getId() !=null){
-                maintenance.getVehicule().setId(maintenanceDto.getVehicule().getId());
+            if(maintenanceDto.getVehicule().getVin() !=null){
+                maintenance.getVehicule().setVin(maintenanceDto.getVehicule().getVin());
             }
 
             return maintenanceRepository.save(maintenance);
@@ -61,8 +64,13 @@ public class MaintenanceServiceImpl implements MaintenanceService{
 
     @Override
     public List<Maintenance> allMaintenances() {
-        return maintenanceRepository.findAll();
+        List<Maintenance> maintenanceList = maintenanceRepository.findAll();
+        maintenanceList.forEach( m ->
+                m.setVehicule(vehiculeRestVehicule.findVehiculeById(m.getVehiculeId())));
+
+        return maintenanceList;
     }
+
 
     @Override
     public void deleteMaintenance(Long id) throws MaintenanceNotFound {
@@ -75,18 +83,19 @@ public class MaintenanceServiceImpl implements MaintenanceService{
     }
 
     @Override
-    public Maintenance getMaintenanceById(Long id) throws MaintenanceNotFound {
-        Optional<Maintenance> optionalMaintenance = maintenanceRepository.findById(id);
-        if(optionalMaintenance.isPresent()){
-            return optionalMaintenance.get();
-        }else {
-            throw new MaintenanceNotFound("Maintenance task with Id "+id +"is not found");
-        }
+    public Maintenance findMaintenanceById(Long id) throws MaintenanceNotFound {
+        Maintenance maintenance = maintenanceRepository.findById(id)
+                .orElseThrow(() -> new MaintenanceNotFound("Véhicule non trouvé avec ID " + id));
+
+        Vehicule vehicule = vehiculeRestVehicule.findVehiculeById(maintenance.getVehiculeId());
+        System.out.println("---------------------" + vehicule);
+        maintenance.setVehicule(vehiculeRestVehicule.findVehiculeById(maintenance.getVehiculeId()));
+        maintenance.getVehicule().setProprietaire(vehicule.getProprietaire());
+
+        return maintenance;
     }
 
-    @Override
-    public Maintenance getMaintenanceByVehiculeId(Long id) throws MaintenanceNotFound {
-        //List<Maintenance> optionalMaintenance = maintenanceRepository.findByVehiculeId(id);
-        return null;
-    }
+
+
+
 }

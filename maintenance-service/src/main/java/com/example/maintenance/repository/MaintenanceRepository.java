@@ -11,6 +11,5 @@ import java.util.Optional;
 public interface MaintenanceRepository extends JpaRepository<Maintenance, Long> {
 
 
-    //List<Maintenance> findByVehiculeId(Long vehiculeId);
 
 }

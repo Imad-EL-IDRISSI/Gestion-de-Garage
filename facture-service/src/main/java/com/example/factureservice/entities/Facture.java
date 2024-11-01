@@ -1,6 +1,7 @@
 package com.example.factureservice.entities;
 
 import com.example.factureservice.model.Client;
+import com.example.factureservice.model.Maintenance;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,9 +20,7 @@ public class Facture {
     private boolean etat;
     private String intervention;
     private String montantTotal;
-    private String emailClient;
-    /*@Transient
-    private Client client;*/
-
-    private Long clientId;
+    @Transient
+    private Maintenance maintenance;
+    private Long id_Maintenanace;
 }

@@ -1,6 +1,7 @@
 package com.example.factureservice.dto;
 
 import com.example.factureservice.model.Client;
+import com.example.factureservice.model.Maintenance;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,9 +16,10 @@ public class FactureDto {
     private Long id;
     private String numeroFacture;
     private Date dateEmission;
-    private Boolean etat;
+    private boolean etat;
     private String intervention;
     private String montantTotal;
-    private Client client;
-    private Long clientId;
+    @Transient
+    private Maintenance maintenance;
+    private Long id_Maintenanace;
 }

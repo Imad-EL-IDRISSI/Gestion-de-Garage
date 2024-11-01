@@ -1,17 +1,20 @@
 package com.example.notificationservice.service;
 
 import com.example.notificationservice.dto.NotificationDto;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.springframework.kafka.annotation.KafkaListener;
+import com.example.notificationservice.entities.Notification;
+import com.example.notificationservice.exception.NotificationNotFound;
+
+import java.util.List;
+
 
 public interface NotificationService {
-    void sendEmail(NotificationDto notificationDto);
+    void saveNotif(NotificationDto notificationDto);
 
-    // Consommateur Kafka pour écouter les messages sur le topic "vehicule-topic"
-    @KafkaListener(topics = "vehicule-topic", groupId = "vehicule-grp")
-    void consumeVehiculeData(String message) throws JsonProcessingException;
 
-    NotificationDto getNotificationFromQueue(Long vehiculeId);
 
-    NotificationDto getNotificationFromQueue();
+    void sendEmail(Long idNotif);
+
+    Notification getNotificationById(Long id) throws NotificationNotFound;
+
+    List<Notification> allNotifications();
 }

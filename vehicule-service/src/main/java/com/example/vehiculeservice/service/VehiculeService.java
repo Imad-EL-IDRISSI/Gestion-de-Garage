@@ -15,5 +15,6 @@ public interface VehiculeService {
 
     List<Vehicule> allVehicules();
 
-    Vehicule getVehiculeById(Long id) throws  VehiculeNotFound;
+
+    Vehicule findVehiculeById(String id) throws VehiculeNotFound;
 }

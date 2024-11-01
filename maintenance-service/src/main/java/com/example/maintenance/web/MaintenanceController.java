@@ -43,7 +43,7 @@ public class MaintenanceController {
     }
     @GetMapping("/{id}")
     public ResponseEntity<Maintenance> getMaintenanceTask(@PathVariable Long id) throws MaintenanceNotFound {
-        Maintenance maintenance = maintenanceService.getMaintenanceById(id);
+        Maintenance maintenance = maintenanceService.findMaintenanceById(id);
         return ResponseEntity.ok(maintenance);
     }
 

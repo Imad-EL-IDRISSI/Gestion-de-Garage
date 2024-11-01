@@ -13,14 +13,14 @@ public interface ClientRestClient {
 
         @GetMapping("/clients/{id}")
         @CircuitBreaker(name = "clientService", fallbackMethod = "getDefaultClient")
-        Client findClientById(@PathVariable Long id);
+        Client findClientById(@PathVariable String id);
         @GetMapping("/clients")
         @CircuitBreaker(name = "clientService", fallbackMethod = "getAllClients")
         List<Client> allClients();
 
         default Client getDefaultClient(Long id, Exception exception){
             Client customer=new Client();
-            customer.setId(id);
+            customer.setCin("Not Vailable");
             customer.setNom("Not Vailable");
             customer.setAdresse("Not Vailable");
             customer.setEmail("Not Vailable");

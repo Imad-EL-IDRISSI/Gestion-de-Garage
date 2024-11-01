@@ -11,9 +11,7 @@ import lombok.Setter;
 
 @Entity @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class Client {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
+    @Id
     private String cin;
     private String nom;
     private String prenom;

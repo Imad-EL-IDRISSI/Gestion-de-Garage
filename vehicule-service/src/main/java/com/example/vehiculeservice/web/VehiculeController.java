@@ -39,8 +39,8 @@ public class VehiculeController {
         return ResponseEntity.ok(vehiculeList);
     }
     @GetMapping("/{id}")
-    public ResponseEntity<Vehicule> findClientById(@PathVariable Long id) throws VehiculeNotFound {
-        Vehicule vehicule = vehiculeService.getVehiculeById(id);
+    public ResponseEntity<Vehicule> findClientById(@PathVariable String id) throws VehiculeNotFound {
+        Vehicule vehicule = vehiculeService.findVehiculeById(id);
         return ResponseEntity.ok(vehicule);
     }
 }

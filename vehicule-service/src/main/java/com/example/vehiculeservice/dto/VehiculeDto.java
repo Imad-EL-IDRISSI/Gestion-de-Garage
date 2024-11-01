@@ -49,7 +49,7 @@ public class VehiculeDto {
     private Date dateAchat;
 
     @JsonProperty("client_Id")
-    private Long client_Id;
+    private String client_Id;
 
     @JsonProperty("etat")
     private Etat etat;

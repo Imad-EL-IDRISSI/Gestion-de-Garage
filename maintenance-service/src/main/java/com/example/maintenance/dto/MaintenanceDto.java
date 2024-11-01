@@ -18,4 +18,6 @@ public class MaintenanceDto {
     private String desciption;
     private Status statut;
     private Vehicule vehicule;
+    private String vehiculeId;
+
 }

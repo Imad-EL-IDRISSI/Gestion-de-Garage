@@ -22,6 +22,6 @@ public class Maintenance {
     private Status statut;
     @Transient
     private Vehicule vehicule;
-    private Long veihiculeId;
+    private String vehiculeId;
 
 }

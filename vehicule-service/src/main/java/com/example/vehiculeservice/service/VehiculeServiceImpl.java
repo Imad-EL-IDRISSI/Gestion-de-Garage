@@ -1,6 +1,5 @@
 package com.example.vehiculeservice.service;
 
-import com.example.vehiculeservice.Config.MessageProducer;
 import com.example.vehiculeservice.Repository.VehiculeRepository;
 import com.example.vehiculeservice.clients.ClientRestClient;
 import com.example.vehiculeservice.dto.VehiculeDto;
@@ -18,13 +17,11 @@ public class VehiculeServiceImpl implements VehiculeService{
 
     private VehiculeRepository vehiculeRepository;
     private ClientRestClient clientRestClient;
-    private final MessageProducer messageProducer; // Injection de MessageProducer
 
 
-    public VehiculeServiceImpl(VehiculeRepository vehiculeRepository, ClientRestClient clientRestClient, MessageProducer messageProducer) {
+    public VehiculeServiceImpl(VehiculeRepository vehiculeRepository, ClientRestClient clientRestClient) {
         this.vehiculeRepository = vehiculeRepository;
         this.clientRestClient = clientRestClient;
-        this.messageProducer = messageProducer;
     }
 
     @Override
@@ -106,38 +103,13 @@ public class VehiculeServiceImpl implements VehiculeService{
         return vehiculeList;
     }
     @Override
-    public Vehicule getVehiculeById(Long id) throws  VehiculeNotFound{
-        Optional<Vehicule> optionalVehicule = vehiculeRepository.findById(id);
+    public Vehicule findVehiculeById(String id) throws VehiculeNotFound {
+        Vehicule vehicule = vehiculeRepository.findByVin(id)
+                .orElseThrow(() -> new VehiculeNotFound("Véhicule non trouvé avec ID " + id));
 
-        if (optionalVehicule.isPresent()) {
-            Vehicule vehicule = optionalVehicule.get();
-            // Récupérer les informations du propriétaire du véhicule
-            vehicule.setProprietaire(clientRestClient.findClientById(vehicule.getClient_Id()));
+        vehicule.setProprietaire(clientRestClient.findClientById(vehicule.getClient_Id()));
 
-            // Créer un VehiculeDto pour envoyer les informations du véhicule
-            VehiculeDto vehiculeDto = new VehiculeDto();
-            vehiculeDto.setId(vehicule.getId());
-            vehiculeDto.setVin(vehicule.getVin());
-            vehiculeDto.setImmatriculation(vehicule.getImmatriculation());
-            vehiculeDto.setMarque(vehicule.getMarque());
-            vehiculeDto.setModele(vehicule.getModele());
-            vehiculeDto.setAnnee(vehicule.getAnnee());
-            vehiculeDto.setKm(vehicule.getKm());
-            vehiculeDto.setCouleur(vehicule.getCouleur());
-            vehiculeDto.setTypeCarb(vehicule.getTypeCarb());
-            vehiculeDto.setDateAchat(vehicule.getDateAchat());
-            vehiculeDto.setProprietaire(vehicule.getProprietaire());
-            vehiculeDto.setClient_Id(vehicule.getClient_Id());
-            vehiculeDto.setEtat(vehicule.getEtat());
-
-            if(vehiculeDto.getId() == id) {
-                // Envoi du message au topic Kafka pour le véhicule consulté
-                messageProducer.sendMessage("vehicule-topic", vehiculeDto);
-            }
-            return vehicule;
-        } else {
-            throw new VehiculeNotFound("Véhicule non trouvé avec ID " + id);
-        }
+        return vehicule;
     }
 
 }

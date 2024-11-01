@@ -17,6 +17,6 @@ public interface ClientService {
     Client updateClient(ClientDto clientDto, Long id) throws CustomerNotFound;
 
     List<Client> allClients();
-    Client findClientById(Long id);
 
+    Client findClientById(String id);
 }

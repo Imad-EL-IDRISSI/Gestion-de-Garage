@@ -12,7 +12,6 @@ public interface MaintenanceService {
     List<Maintenance> allMaintenances();
     void deleteMaintenance(Long id) throws MaintenanceNotFound;
 
-    Maintenance getMaintenanceById(Long id)throws MaintenanceNotFound;
-    Maintenance getMaintenanceByVehiculeId(Long id)throws MaintenanceNotFound;
+    Maintenance findMaintenanceById(Long id)throws MaintenanceNotFound;
 
 }

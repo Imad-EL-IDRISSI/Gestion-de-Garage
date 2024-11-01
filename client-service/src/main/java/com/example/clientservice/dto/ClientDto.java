@@ -11,7 +11,6 @@ import lombok.Setter;
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class ClientDto {
 
-    private long id;
 
     private String cin;
     private String nom;

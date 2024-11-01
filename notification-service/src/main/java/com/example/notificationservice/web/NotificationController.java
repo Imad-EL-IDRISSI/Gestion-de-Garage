@@ -1,13 +1,14 @@
 package com.example.notificationservice.web;
 
 import com.example.notificationservice.dto.NotificationDto;
+import com.example.notificationservice.entities.Notification;
+import com.example.notificationservice.exception.NotificationNotFound;
 import com.example.notificationservice.service.NotificationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/notification")
@@ -20,20 +21,31 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
-    @PostMapping("/notif")
-    public ResponseEntity<String> sendNotification() {
-        // Si vous souhaitez envoyer toutes les notifications de la queue
-        // vous pouvez les traiter ici. Sinon, cette méthode peut simplement
-        // servir de déclencheur.
+    @PostMapping("/ajouter")
+    public ResponseEntity<String> saveNotification(@RequestBody NotificationDto notificationDto) {
 
-        // Envoyer une notification en utilisant une notification de la queue (optionnel)
-        NotificationDto notificationDto = notificationService.getNotificationFromQueue();
-        System.out.println("-------------"+notificationDto);
         if (notificationDto != null) {
-            notificationService.sendEmail(notificationDto);
-            return ResponseEntity.ok("Notification envoyée à " + notificationDto.getClient().getEmail());
+            notificationService.saveNotif(notificationDto);
+            return ResponseEntity.ok("Notification saved " );
         } else {
-            return ResponseEntity.ok("Aucune notification à envoyer.");
+            return ResponseEntity.ok("Aucune notification saved.");
         }
+    }
+    @PostMapping("/send/{id}")
+    public ResponseEntity<String> sendNotification(@PathVariable Long id) {
+
+        notificationService.sendEmail(id);
+        return ResponseEntity.ok("Notification envoyée  ");
+    }
+    @GetMapping("/{id}")
+    public  ResponseEntity<Notification> getNotificationById(@PathVariable Long id) throws NotificationNotFound {
+        Notification notification = notificationService.getNotificationById(id);
+        return ResponseEntity.ok(notification);
+    }
+
+    @GetMapping()
+    public  ResponseEntity<List<Notification>> getAllNotif(){
+        List<Notification> notificationList = notificationService.allNotifications();
+        return ResponseEntity.ok(notificationList);
     }
 }
