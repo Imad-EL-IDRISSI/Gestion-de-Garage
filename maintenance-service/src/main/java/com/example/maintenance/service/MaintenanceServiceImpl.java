@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -22,13 +23,25 @@ public class MaintenanceServiceImpl implements MaintenanceService{
         this.maintenanceRepository = maintenanceRepository;
         this.vehiculeRestVehicule = vehiculeRestVehicule;
     }
+    @Override
+    public List<Maintenance> getPlannedMaintenances() {
+        return maintenanceRepository.findAll().stream()
+                .filter(maintenance -> "PLANNED".equalsIgnoreCase(String.valueOf(maintenance.getStatut())))
+                .collect(Collectors.toList());
+    }
+    @Override
+    public List<Maintenance> getCompletedMaintenances() {
+        return maintenanceRepository.findAll().stream()
+                .filter(maintenance -> "COMPLETED".equalsIgnoreCase(String.valueOf(maintenance.getStatut())))
+                .collect(Collectors.toList());
+    }
 
     @Override
     public Maintenance addMaintenance(MaintenanceDto maintenanceDto) {
             Maintenance maintenance = new Maintenance();
             maintenance.setDebut(maintenanceDto.getDebut());
             maintenance.setFin(maintenanceDto.getFin());
-            maintenance.setDesciption(maintenanceDto.getDesciption());
+            maintenance.setDescription(maintenanceDto.getDescription());
             maintenance.setVehiculeId(maintenanceDto.getVehiculeId());
             maintenance.setStatut(maintenanceDto.getStatut());
 
@@ -46,14 +59,14 @@ public class MaintenanceServiceImpl implements MaintenanceService{
             if(maintenanceDto.getFin() !=null){
                 maintenance.setFin(maintenanceDto.getFin());
             }
-            if(maintenanceDto.getDesciption() !=null){
-                maintenance.setDesciption(maintenanceDto.getDesciption());
+            if(maintenanceDto.getDescription() !=null){
+                maintenance.setDescription(maintenanceDto.getDescription());
             }
             if(maintenanceDto.getStatut() !=null){
                 maintenance.setStatut(maintenanceDto.getStatut());
             }
-            if(maintenanceDto.getVehicule().getVin() !=null){
-                maintenance.getVehicule().setVin(maintenanceDto.getVehicule().getVin());
+            if(maintenanceDto.getVehiculeId() !=null){
+                maintenance.setVehiculeId(maintenanceDto.getVehiculeId());
             }
 
             return maintenanceRepository.save(maintenance);

@@ -27,7 +27,7 @@ public class ClientController {
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<Client> updateClient(@RequestBody ClientDto clientDto, @PathVariable Long id) throws CustomerNotFound {
+    public ResponseEntity<Client> updateClient(@RequestBody ClientDto clientDto, @PathVariable String id) throws CustomerNotFound {
         Client UClient = clientService.updateClient(clientDto, id);
         return  ResponseEntity.ok(UClient);
     }
@@ -41,6 +41,11 @@ public class ClientController {
     public ResponseEntity<Client> findClientById(@PathVariable String id){
         Client client = clientService.findClientById(id);
         return ResponseEntity.ok(client);
+    }
+    @GetMapping("/ids")
+    public ResponseEntity<List<String>> getClientIds() {
+        List<String> clientIds = clientService.getAllClientIds();
+        return ResponseEntity.ok(clientIds);
     }
 
 

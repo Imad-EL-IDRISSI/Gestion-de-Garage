@@ -26,7 +26,7 @@ public class MaintenanceController {
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<Maintenance> updateMaintenanceTask(@RequestBody MaintenanceDto maintenanceDto,@PathVariable Long id) throws MaintenanceNotFound {
+    public ResponseEntity<Maintenance> updateMaintenanceTask(@PathVariable Long id, @RequestBody MaintenanceDto maintenanceDto) throws MaintenanceNotFound {
         Maintenance maintenance = maintenanceService.updateMaintenance(maintenanceDto,id);
         return ResponseEntity.ok(maintenance);
     }
@@ -46,5 +46,17 @@ public class MaintenanceController {
         Maintenance maintenance = maintenanceService.findMaintenanceById(id);
         return ResponseEntity.ok(maintenance);
     }
+    @GetMapping("/maintenances/planned")
+    public ResponseEntity<List<Maintenance>> getPlannedMaintenances() {
+        List<Maintenance> plannedMaintenances = maintenanceService.getPlannedMaintenances();
+        return ResponseEntity.ok(plannedMaintenances);
+    }
+    @GetMapping("/maintenances/completed")
+    public ResponseEntity<List<Maintenance>> getCompletedMaintenances() {
+        List<Maintenance> plannedMaintenances = maintenanceService.getCompletedMaintenances();
+        return ResponseEntity.ok(plannedMaintenances);
+    }
+
+
 
 }

@@ -7,6 +7,10 @@ import com.example.maintenance.exception.MaintenanceNotFound;
 import java.util.List;
 
 public interface MaintenanceService {
+    List<Maintenance> getPlannedMaintenances();
+
+    List<Maintenance> getCompletedMaintenances();
+
     Maintenance addMaintenance(MaintenanceDto maintenanceDto);
     Maintenance updateMaintenance(MaintenanceDto maintenanceDto, Long id) throws MaintenanceNotFound;
     List<Maintenance> allMaintenances();

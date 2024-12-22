@@ -11,15 +11,18 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import static com.example.factureservice.enums.Status.ENVOYE;
 
 @Service
 @Transactional
 public class FactureServiceImpl implements FactureService {
 
 
-    private MaintenanceRestMaintenance clientRestClient;
+    private final MaintenanceRestMaintenance clientRestClient;
     private FactureRepository factureRepository;
     private JavaMailSender mailSender;
 
@@ -34,8 +37,7 @@ public class FactureServiceImpl implements FactureService {
 
         Facture facture = new Facture();
 
-        facture.setNumeroFacture(facDto.getNumeroFacture());
-        facture.setDateEmission(facDto.getDateEmission());
+        facture.setDateEmission(LocalDateTime.now());
         facture.setEtat(facDto.isEtat());
         facture.setId_Maintenanace(facDto.getId_Maintenanace());
         facture.setIntervention(facDto.getIntervention());
@@ -76,13 +78,13 @@ public class FactureServiceImpl implements FactureService {
 
         if (factureOpt.isPresent()) {
             Facture facture = factureOpt.get();
-
+            facture.setDateEmission(LocalDateTime.now());
             facture.setMaintenance(clientRestClient.findMaintenanceById(facture.getId_Maintenanace()));
+            facture.setStatus(ENVOYE);
 
             // Création du message email
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(facture.getMaintenance().getVehicule().getProprietaire().getEmail());
-            message.setSubject(facture.getNumeroFacture());
             message.setText(contenuEmail(facture));
 
             factureRepository.save(facture);
@@ -95,10 +97,9 @@ public class FactureServiceImpl implements FactureService {
             // Création du contenu de l'email
             return "Bonjour " + facDto.getMaintenance().getVehicule().getProprietaire().getNom()+ ",\n\n"
                     + "Veuillez trouver ci-dessous les détails de votre facture :\n"
-                    + "Numéro de facture : " + facDto.getNumeroFacture() + "\n"
+                    + "Numéro de facture : " + facDto.getId() + "\n"
                     + "Date d'émission : " + facDto.getDateEmission() + "\n"
                     + "Montant total : " + facDto.getMontantTotal() + " €\n"
-                    + "État du paiement : " + facDto.isEtat() + "\n\n"
                     + "Merci pour votre confiance.\n"
                     + "Cordialement,\n"
                     + "Garage EA de Maintenance.";

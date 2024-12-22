@@ -1,4 +1,14 @@
-FROM ubuntu:latest
-LABEL authors="Zbook"
+FROM node:18-alpine
+WORKDIR /app
 
-ENTRYPOINT ["top", "-b"]
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "start"]

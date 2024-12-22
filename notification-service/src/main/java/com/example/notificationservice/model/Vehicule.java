@@ -1,6 +1,7 @@
 package com.example.notificationservice.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,6 +31,7 @@ public class Vehicule {
 
     private String etat;
 
+    @Transient
     private Client proprietaire;
 
 

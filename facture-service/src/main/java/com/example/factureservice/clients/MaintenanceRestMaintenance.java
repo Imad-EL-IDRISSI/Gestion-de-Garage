@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "MAINTENANCE-SERVICE")
+@FeignClient(name = "MAINTENANCE-SERVICE", url = "http://microservice-openfeign-maintenance-service-1:8083")
 public interface MaintenanceRestMaintenance {
 
     @GetMapping("/maintenanceTasks/{id}")

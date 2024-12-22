@@ -1,0 +1,21 @@
+
+
+.container {
+    border-radius: 15px; /* Rounded corners for the container */
+    background-color: #ffffff; /* White background for the form */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow effect */
+}
+
+.btn-success {
+    background-color: #28a745; /* Green color for the button */
+    border-color: #28a745; /* Button border color */
+}
+
+.btn-success:hover {
+    background-color: #218838; /* Darker green on hover */
+    border-color: #1e7e34; /* Darker border color on hover */
+}
+
+.alert {
+    border-radius: 8px; /* Rounded corners for alerts */
+}

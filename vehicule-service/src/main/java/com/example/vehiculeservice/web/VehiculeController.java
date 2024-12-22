@@ -5,6 +5,7 @@ import com.example.vehiculeservice.dto.VehiculeDto;
 import com.example.vehiculeservice.entities.Vehicule;
 import com.example.vehiculeservice.exception.VehiculeNotFound;
 import com.example.vehiculeservice.service.VehiculeService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +29,7 @@ public class VehiculeController {
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<Vehicule> updateVehicule(@RequestBody VehiculeDto vehiculeDto, @PathVariable Long id) throws VehiculeNotFound {
+    public ResponseEntity<Vehicule> updateVehicule(@RequestBody VehiculeDto vehiculeDto, @PathVariable String id) throws VehiculeNotFound {
         Vehicule vehicule = vehiculeService.updateVehicule(vehiculeDto, id);
         return ResponseEntity.ok(vehicule);
     }
@@ -43,4 +44,17 @@ public class VehiculeController {
         Vehicule vehicule = vehiculeService.findVehiculeById(id);
         return ResponseEntity.ok(vehicule);
     }
+    @GetMapping("/fonctionnels")
+    public ResponseEntity<List<Vehicule>> getVehiculesFonctionnels() {
+        List<Vehicule> vehiculesFonctionnels = vehiculeService.getVehiculesFonctionnels();
+        return ResponseEntity.ok(vehiculesFonctionnels);
+    }
+    @PutMapping("/updateEtat/{id}")
+    public ResponseEntity<Void> updateVehiculeEtat(@PathVariable Long id, @RequestParam String etat) {
+        vehiculeService.updateEtatVehicule(id, etat);
+        return ResponseEntity.ok().build();
+    }
+
+
+
 }

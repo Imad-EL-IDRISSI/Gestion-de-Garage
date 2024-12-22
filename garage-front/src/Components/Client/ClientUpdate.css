@@ -1,0 +1,25 @@
+/* ClientUpdate.css */
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+h2 {
+    font-size: 1.5rem;
+}
+
+input[type="text"], input[type="email"] {
+    border: 1px solid #007bff; /* Blue border for input fields */
+}
+
+input[type="text"]:focus, input[type="email"]:focus {
+    border-color: #0056b3; /* Darker blue on focus */
+    box-shadow: 0 0 5px rgba(0, 123, 255, .5); /* Subtle shadow effect on focus */
+}
+
+button {
+    transition: background-color 0.3s ease; /* Smooth transition for button hover */
+}
+
+button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}

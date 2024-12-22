@@ -1,0 +1,8 @@
+.table th, .table td {
+    font-size: 0.8rem; /* Réduit la taille de la police */
+    padding: 0.3rem;   /* Réduit le rembourrage */
+}
+
+.table {
+    width: 100%; /* Assure que la table utilise toute la largeur disponible */
+}

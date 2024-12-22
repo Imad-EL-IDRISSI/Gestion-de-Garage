@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "VEHICULE-SERVICE")
+@FeignClient(name = "VEHICULE-SERVICE", url = "http://microservice-openfeign-vehicule-service-1:8082")
 public interface VehiculeRestClient {
 
     @GetMapping("/vehicules/{id}")
@@ -18,6 +18,8 @@ public interface VehiculeRestClient {
     @GetMapping("/vehicules")
     @CircuitBreaker(name = "vehiculeService", fallbackMethod = "getAllVehicules")
     List<Vehicule> allVehicules();
+
+
 
     default Vehicule getDefaultVehicule(Long id, Exception exception){
         Vehicule vehicule =new Vehicule();

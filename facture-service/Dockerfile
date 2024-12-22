@@ -7,7 +7,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Étape 2: Runtime
-FROM openjdk:17-jdk-slim
+FROM openjdk:17-oracle
 
 WORKDIR /app
 # Copier uniquement le JAR généré de l'étape 1

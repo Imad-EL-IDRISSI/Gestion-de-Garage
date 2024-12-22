@@ -14,9 +14,11 @@ public interface ClientService {
     Client saveClient(ClientDto clientDto) throws EmailNonValideException;
 
 
-    Client updateClient(ClientDto clientDto, Long id) throws CustomerNotFound;
+    Client updateClient(ClientDto clientDto, String id) throws CustomerNotFound;
 
     List<Client> allClients();
 
     Client findClientById(String id);
+
+    List<String> getAllClientIds();
 }

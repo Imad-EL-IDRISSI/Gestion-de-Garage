@@ -1,0 +1,486 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: garage
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+  namespace: garage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: garage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17
+          env:
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "root"
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: garage
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: postgres
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discovery-service
+  namespace: garage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: discovery-service
+  template:
+    metadata:
+      labels:
+        app: discovery-service
+    spec:
+      containers:
+        - name: discovery-service-container
+          image: ouaqar1/discovery-service:1.0.0
+          ports:
+            - containerPort: 8761
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: discovery-service
+  namespace: garage
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8761
+      targetPort: 8761
+  selector:
+    app: discovery-service
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-service
+  namespace: garage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config-service
+  template:
+    metadata:
+      labels:
+        app: config-service
+    spec:
+      containers:
+        - name: microservice-openfeign-config-service-1
+          image: ouaqar1/config-service:latest
+          ports:
+            - containerPort: 9999
+          env:
+            - name: DISCOVERY_SERVICE_URL
+              value: "http://discovery-service:8761/eureka"
+      initContainers:
+        - name: wait-for-discovery
+          image: appropriate/curl
+          command: [ 'sh', '-c', 'until nc -z discovery-service 8761; do echo waiting for discovery service; sleep 2; done;' ]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-service
+  namespace: garage
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 9999
+      targetPort: 9999
+  selector:
+    app: config-service
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-service
+  namespace: garage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-service
+  template:
+    metadata:
+      labels:
+        app: gateway-service
+    spec:
+      containers:
+        - name: microservice-openfeign-gateway-service-1
+          image: ouaqar1/gateway-service:latest
+          ports:
+            - containerPort: 8888
+          env:
+            - name: DISCOVERY_SERVICE_URL
+              value: "http://discovery-service:8761/eureka"
+            - name: CONFIG_SERVICE_URL
+              value: "http://config-service:9999"
+      initContainers:
+        - name: wait-for-config
+          image: appropriate/curl
+          command: [ 'sh', '-c', 'until nc -z config-service 9999; do echo waiting for config service; sleep 2; done;' ]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+  namespace: garage
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8888
+      targetPort: 8888
+  selector:
+    app: gateway-service
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-service
+  namespace: garage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client-service
+  template:
+    metadata:
+      labels:
+        app: client-service
+    spec:
+      containers:
+        - name: client-service-container
+          image: ouaqar1/client-service:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/client"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "root"
+            - name: DISCOVERY_SERVICE_URL
+              value: "http://discovery-service:8761/eureka"
+            - name: CONFIG_SERVICE_URL
+              value: "http://config-service:9999"
+      initContainers:
+        - name: wait-for-config
+          image: appropriate/curl
+          command: [ 'sh', '-c', 'until nc -z config-service 9999; do echo waiting for config service; sleep 2; done;' ]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-service
+  namespace: garage
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8081
+      targetPort: 8081
+  selector:
+    app: client-service
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vehicule-service
+  namespace: garage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vehicule-service
+  template:
+    metadata:
+      labels:
+        app: vehicule-service
+    spec:
+      containers:
+        - name: microservice-openfeign-vehicule-service-1
+          image: ouaqar1/vehicule-service:latest
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/vehicule"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "root"
+            - name: DISCOVERY_SERVICE_URL
+              value: "http://discovery-service:8761/eureka"
+            - name: CONFIG_SERVICE_URL
+              value: "http://config-service:9999"
+      initContainers:
+        - name: wait-for-client
+          image: appropriate/curl
+          command: [ 'sh', '-c', 'until nc -z client-service 8081; do echo waiting for config service; sleep 2; done;' ]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vehicule-service
+  namespace: garage
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8082
+      targetPort: 8082
+  selector:
+    app: vehicule-service
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maintenance-service
+  namespace: garage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maintenance-service
+  template:
+    metadata:
+      labels:
+        app: maintenance-service
+    spec:
+      containers:
+        - name: microservice-openfeign-maintenance-service-1
+          image: ouaqar1/maintenance-service:latest
+          ports:
+            - containerPort: 8083
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/maintenance"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "root"
+            - name: DISCOVERY_SERVICE_URL
+              value: "http://discovery-service:8761/eureka"
+            - name: CONFIG_SERVICE_URL
+              value: "http://config-service:9999"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      initContainers:
+        - name: wait-for-vehicule
+          image: appropriate/curl
+          command: [ 'sh', '-c', 'until nc -z vehicule-service 8082; do echo waiting for config service; sleep 2; done;' ]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maintenance-service
+  namespace: garage
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8083
+      targetPort: 8083
+  selector:
+    app: maintenance-service
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: garage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: microservice-openfeign-notification-service-1
+          image: ouaqar1/notification-service:latest
+          ports:
+            - containerPort: 8084
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/notifications"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "root"
+            - name: DISCOVERY_SERVICE_URL
+              value: "http://discovery-service:8761/eureka"
+            - name: CONFIG_SERVICE_URL
+              value: "http://config-service:9999"
+      initContainers:
+        - name: wait-for-maintenance
+          image: appropriate/curl
+          command: [ 'sh', '-c', 'until nc -z maintenance-service 8083; do echo waiting for config service; sleep 2; done;' ]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: garage
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8084
+      targetPort: 8084
+  selector:
+    app: notification-service
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: facture-service
+  namespace: garage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: facture-service
+  template:
+    metadata:
+      labels:
+        app: facture-service
+    spec:
+      containers:
+        - name: microservice-openfeign-facture-service-1
+          image: ouaqar1/facture-service:latest
+          ports:
+            - containerPort: 8085
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/factures"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "root"
+            - name: DISCOVERY_SERVICE_URL
+              value: "http://discovery-service:8761/eureka"
+            - name: CONFIG_SERVICE_URL
+              value: "http://config-service:9999"
+      initContainers:
+        - name: wait-for-maintenance
+          image: appropriate/curl
+          command: [ 'sh', '-c', 'until nc -z maintenance-service 8083; do echo waiting for config service; sleep 2; done;' ]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: facture-service
+  namespace: garage
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8085
+      targetPort: 8085
+  selector:
+    app: facture-service
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: garage-front
+  namespace: garage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: garage-front
+  template:
+    metadata:
+      labels:
+        app: garage-front
+    spec:
+      containers:
+        - name: garage-front
+          image: ouaqar1/microservice-openfeign-garage-front:latest
+          ports:
+            - containerPort: 3000
+          stdin: true
+          stdinOnce: true
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: garage-front
+  namespace: garage
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: garage-front

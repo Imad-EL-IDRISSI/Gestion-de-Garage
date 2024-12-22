@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -35,8 +36,8 @@ public class ClientServiceImpl implements ClientService{
     }
 
     @Override
-    public Client updateClient(ClientDto clientDto, Long id) throws CustomerNotFound {
-        Optional<Client> existingClient = clientRepository.findById(id);
+    public Client updateClient(ClientDto clientDto, String id) throws CustomerNotFound {
+        Optional<Client> existingClient = clientRepository.findByCin(id);
         if(existingClient.isPresent()) {
             Client client = existingClient.get();
             if (clientDto.getCin() != null) {
@@ -72,6 +73,12 @@ public class ClientServiceImpl implements ClientService{
     public Client findClientById(String id) {
         Optional<Client> client = clientRepository.findByCin(id);
         return client.get();
+    }
+    @Override
+    public List<String> getAllClientIds() {
+        return clientRepository.findAll().stream()
+                .map(Client::getCin)
+                .collect(Collectors.toList());
     }
 
 

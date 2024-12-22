@@ -1,0 +1,30 @@
+.form-container {
+    background-color: #f8f9fa; /* Couleur de fond légère */
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px; /* Réduit la largeur maximale */
+    margin: auto; /* Centre le formulaire horizontalement */
+}
+
+
+.title {
+    color: #007bff; /* Couleur du titre */
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.form {
+    border: 1px solid #e0e0e0; /* Bordure grise */
+    border-radius: 10px;
+}
+
+.submit-button {
+    background-color: #007bff; /* Couleur du bouton */
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #0056b3; /* Couleur au survol du bouton */
+}

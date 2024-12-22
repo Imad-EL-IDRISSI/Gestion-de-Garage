@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
+import './ClientForm.css'; // Assurez-vous de créer ce fichier CSS
 
 const ClientForm = ({ onSubmit }) => {
     const [cin, setCin] = useState('');
@@ -12,36 +13,56 @@ const ClientForm = ({ onSubmit }) => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        // Basic validation
+
+        // Validation des champs
         if (!cin || !nom || !prenom || !adresse || !telephone || !email) {
             setError('Tous les champs sont requis.');
             return;
         }
-        setError(''); // Clear error
+
+        setError('');
         const clientData = { cin, nom, prenom, adresse, telephone, email };
 
-        // Simulate API call
-        setTimeout(() => {
-            onSubmit(clientData);
+        try {
+            const response = await fetch('http://localhost:8888/CLIENT-SERVICE/clients/ajouter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(clientData),
+            });
+
+            if (!response.ok) {
+                throw new Error("Erreur lors de l'ajout du client.");
+            }
+
             setSuccess('Client enregistré avec succès !');
-            // Clear form fields
+            // Réinitialiser les champs du formulaire
             setCin('');
             setNom('');
             setPrenom('');
             setAdresse('');
             setTelephone('');
             setEmail('');
-        }, 500);
+
+            if (onSubmit) {
+                onSubmit(clientData);
+            }
+        } catch (error) {
+            setError(error.message);
+        }
     };
 
     return (
-        <Container className="mt-5">
-            <h2 className="text-center mb-4">Ajouter un Client</h2>
+        <Container className="form-container mt-5">
+<h2 className="text-center text-primary mb-3" style={{ fontWeight: 'bold', textTransform: 'uppercase', fontSize: '2rem' }}>
+Ajouter un Client</h2>
+<p className="text-center text-muted mb-4" style={{ fontSize: '1rem' }}>
+    Veuillez remplir le formulaire ci-dessous pour ajouter les informations du client.
+</p>
             {error && <Alert variant="danger">{error}</Alert>}
             {success && <Alert variant="success">{success}</Alert>}
-            <Form onSubmit={handleSubmit} className="shadow p-4 rounded">
+            <Form onSubmit={handleSubmit} className="shadow p-4 rounded form">
                 <Form.Group className="mb-3">
                     <Form.Label>CIN</Form.Label>
                     <Form.Control
@@ -102,7 +123,7 @@ const ClientForm = ({ onSubmit }) => {
                         required
                     />
                 </Form.Group>
-                <Button variant="primary" type="submit" className="w-100">
+                <Button variant="primary" type="submit" className="w-100 submit-button">
                     Enregistrer Client
                 </Button>
             </Form>

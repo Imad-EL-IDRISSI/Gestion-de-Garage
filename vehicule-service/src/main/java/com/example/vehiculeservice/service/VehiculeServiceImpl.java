@@ -4,22 +4,28 @@ import com.example.vehiculeservice.Repository.VehiculeRepository;
 import com.example.vehiculeservice.clients.ClientRestClient;
 import com.example.vehiculeservice.dto.VehiculeDto;
 import com.example.vehiculeservice.entities.Vehicule;
+import com.example.vehiculeservice.enums.Etat;
 import com.example.vehiculeservice.exception.VehiculeNotFound;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class VehiculeServiceImpl implements VehiculeService{
 
+    private final RestTemplate restTemplate;
+
     private VehiculeRepository vehiculeRepository;
     private ClientRestClient clientRestClient;
 
 
-    public VehiculeServiceImpl(VehiculeRepository vehiculeRepository, ClientRestClient clientRestClient) {
+    public VehiculeServiceImpl(RestTemplate restTemplate, VehiculeRepository vehiculeRepository, ClientRestClient clientRestClient) {
+        this.restTemplate = restTemplate;
         this.vehiculeRepository = vehiculeRepository;
         this.clientRestClient = clientRestClient;
     }
@@ -46,10 +52,15 @@ public class VehiculeServiceImpl implements VehiculeService{
 
         return vehiculeRepository.save(vehicule);
     }
-
     @Override
-    public Vehicule updateVehicule(VehiculeDto vehiculeDto, Long id) throws VehiculeNotFound {
-        Optional<Vehicule> existingVehicule = vehiculeRepository.findById(id);
+    public List<Vehicule> getVehiculesFonctionnels() {
+        return vehiculeRepository.findAll().stream()
+                .filter(vehicule -> "ENATTENTE".equalsIgnoreCase(String.valueOf(vehicule.getEtat())))
+                .collect(Collectors.toList());
+    }
+    @Override
+    public Vehicule updateVehicule(VehiculeDto vehiculeDto, String id) throws VehiculeNotFound {
+        Optional<Vehicule> existingVehicule = vehiculeRepository.findByVin(id);
 
         if(existingVehicule.isPresent()){
             Vehicule vehicule = existingVehicule.get();
@@ -101,6 +112,13 @@ public class VehiculeServiceImpl implements VehiculeService{
             System.out.println("::::::::::::::::::::"+vehicule.getProprietaire());
         });
         return vehiculeList;
+    }
+    @Override
+    public void updateEtatVehicule(Long id, String etat) {
+        Vehicule vehicule = vehiculeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Véhicule non trouvé"));
+        vehicule.setEtat(Etat.valueOf(etat));
+        vehiculeRepository.save(vehicule);
     }
     @Override
     public Vehicule findVehiculeById(String id) throws VehiculeNotFound {

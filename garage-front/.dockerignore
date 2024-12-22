@@ -1,0 +1,27 @@
+# Ignorer les dépendances locales
+node_modules
+npm-debug.log
+
+# Ignorer les fichiers de configuration locaux
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Ignorer le dossier de build local
+build
+
+# Ignorer les fichiers générés par l'éditeur
+*.swp
+*.idea
+*.vscode
+*.log
+.DS_Store
+
+# Ignorer les fichiers de contrôle de version
+.git
+.gitignore
+
+# Ignorer les fichiers spécifiques aux systèmes
+Thumbs.db

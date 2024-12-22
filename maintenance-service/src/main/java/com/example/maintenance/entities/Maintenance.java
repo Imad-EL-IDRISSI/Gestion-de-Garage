@@ -18,10 +18,11 @@ public class Maintenance {
     private Long id;
     private Date debut;
     private Date fin;
-    private String desciption;
+    private String description;
     private Status statut;
     @Transient
     private Vehicule vehicule;
+
     private String vehiculeId;
 
 }

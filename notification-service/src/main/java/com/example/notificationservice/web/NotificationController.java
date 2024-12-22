@@ -9,9 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/notification")
+
 public class NotificationController {
 
     private NotificationService notificationService;
@@ -31,9 +33,9 @@ public class NotificationController {
             return ResponseEntity.ok("Aucune notification saved.");
         }
     }
+
     @PostMapping("/send/{id}")
     public ResponseEntity<String> sendNotification(@PathVariable Long id) {
-
         notificationService.sendEmail(id);
         return ResponseEntity.ok("Notification envoyée  ");
     }

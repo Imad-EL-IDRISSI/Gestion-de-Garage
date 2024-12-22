@@ -1,4 +1,4 @@
-package com.example.notificationservice.enums;
+package com.example.factureservice.enums;
 
 public enum Status {
     ENVOYE, NONENVOYE

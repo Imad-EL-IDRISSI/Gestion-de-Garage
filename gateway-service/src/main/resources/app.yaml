@@ -17,7 +17,7 @@ spring:
         - id: r4
           uri: http://localhost:8084/
           predicates:
-            - Path=/notifications/**
+            - Path=/notification/**
         - id: r5
           uri: http://localhost:8085/
           predicates:

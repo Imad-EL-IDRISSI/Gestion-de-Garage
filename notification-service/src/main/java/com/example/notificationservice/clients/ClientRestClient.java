@@ -1,6 +1,6 @@
-package com.example.vehiculeservice.clients;
+package com.example.notificationservice.clients;
 
-import com.example.vehiculeservice.model.Client;
+import com.example.notificationservice.model.Client;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.Collections;
 import java.util.List;
 
-@FeignClient(name = "CLIENT-SERVICE", url = "http://localhost:8081")
+@FeignClient(name = "CLIENT-SERVICE", url = "http://client-service-container:8081")
 public interface ClientRestClient {
 
     @GetMapping("/clients/{id}")
